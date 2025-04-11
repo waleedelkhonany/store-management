@@ -1,4 +1,5 @@
 {
     "Products": true,
-    "Dashboard": true
+    "Dashboard": true,
+    "Customers": true
 }
