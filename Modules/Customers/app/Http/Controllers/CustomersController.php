@@ -1,9 +1,10 @@
 <?php
 
-namespace Modules\Customers\Http\Controllers;
+namespace Modules\Customers\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Modules\Customers\app\Models\Customer;
 
 class CustomersController extends Controller
 {
@@ -12,7 +13,8 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        return view('customers::index');
+        $data['results'] = Customer::latest()->paginate(10);
+        return view('customers::index', $data);
     }
 
     /**
@@ -26,31 +28,63 @@ class CustomersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+        ]);
+
+        Customer::create($validated);
+
+        return redirect()->route('customers.index')
+            ->with('success', 'Customer created successfully.');
+    }
 
     /**
      * Show the specified resource.
      */
-    public function show($id)
+    public function show(Customer $customer)
     {
-        return view('customers::show');
+        return view('customers::show', compact('customer'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit(Customer $customer)
     {
-        return view('customers::edit');
+        return view('customers::edit', compact('customer'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, Customer $customer)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:customers,email,' . $customer->id,
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+        ]);
+
+        $customer->update($validated);
+
+        return redirect()->route('customers.index')
+            ->with('success', 'Customer updated successfully.');
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy(Customer $customer)
+    {
+        $customer->delete();
+
+        return redirect()->route('customers.index')
+            ->with('success', 'Customer deleted successfully.');
+    }
 }
