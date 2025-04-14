@@ -5,6 +5,7 @@ namespace Modules\Customers\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\Customers\app\Models\Customer;
+use Modules\Customers\app\Http\Requests\CustomerRequest;
 
 class CustomersController extends Controller
 {
@@ -13,7 +14,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $data['results'] = Customer::latest()->paginate(10);
+        $data['model'] = Customer::latest()->paginate(10);
         return view('customers::index', $data);
     }
 
@@ -22,23 +23,18 @@ class CustomersController extends Controller
      */
     public function create()
     {
-        return view('customers::create');
+        $data['model'] = new Customer();
+        return view('customers::create', $data);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CustomerRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
-        ]);
-
-        Customer::create($validated);
-
+        $model = new Customer;
+        $model->fill($request->validated());
+        $model->save();
         return redirect()->route('customers.index')
             ->with('success', 'Customer created successfully.');
     }
@@ -62,17 +58,10 @@ class CustomersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(CustomerRequest $request, Customer $customer)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email,' . $customer->id,
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
-        ]);
-
-        $customer->update($validated);
-
+        $customer->fill($request->validated());
+        $customer->save();
         return redirect()->route('customers.index')
             ->with('success', 'Customer updated successfully.');
     }

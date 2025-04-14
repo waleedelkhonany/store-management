@@ -67,7 +67,7 @@
                             <span class="info-box-text">Sales</span>
                             <span class="info-box-number">760</span>
                         </div>
-                        <!-- /.info-box-content -->
+    <!-- /.info-box-content -->
                     </div>
                     <!-- /.info-box -->
                 </div>
